@@ -1,0 +1,16 @@
+services:
+  mysql:
+    image: mysql
+    container_name: mysql_container
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password      # Cambia esto por una contraseña segura
+      MYSQL_DATABASE: notes   # El nombre de tu base de datos
+      MYSQL_USER: notes_admin                     # Cambia esto si tienes un usuario diferente
+      MYSQL_PASSWORD: notes_admin_password              # Cambia por la contraseña del usuario
+    ports:
+      - "3306:3306"    # Mapea el puerto 3306 del contenedor al puerto 3306 de tu máquina local
+    volumes:
+      - mysql_data:/var/lib/mysql  # Para persistir los datos entre reinicios
+
+volumes:
+  mysql_data:

@@ -1,0 +1,25 @@
+<p>notes works!</p>
+
+
+<mat-list>
+  <h3 mat-subheader>Notas</h3>
+  <mat-list-item *ngFor="let nota of notes; let i = index"
+                 [ngClass]="getLineColor(i)"
+                 class="nota-item">
+    <div class="nota-content">
+      <div style="flex-grow: 1;">
+        {{ nota.text }}
+      </div>
+      <div>
+        <button mat-icon-button (click)="updateNote(nota)" aria-label="Editar">
+          <mat-icon>edit</mat-icon> <!-- Icono de editar -->
+        </button>
+        <button mat-icon-button color="warn" (click)="deleteNote(nota.id)" aria-label="Eliminar">
+          <mat-icon>delete</mat-icon> <!-- Icono de eliminar -->
+        </button>
+      </div>
+    </div>
+  </mat-list-item>
+</mat-list>
+
+

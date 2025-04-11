@@ -24,6 +24,9 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	//implementation("org.springframework.boot:spring-boot-starter-web") // Para crear APIs REST
+	//implementation("org.springframework.boot:spring-boot-starter-data-jpa") // Para acceder a la base de datos
+	implementation("mysql:mysql-connector-java:8.0.32")
 }
 
 tasks.withType<Test> {
