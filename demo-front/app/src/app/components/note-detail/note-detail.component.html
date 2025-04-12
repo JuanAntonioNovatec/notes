@@ -1,0 +1,11 @@
+<h2 mat-dialog-title>{{ data ? 'Editar Nota' : 'Añadir Nota' }}</h2>
+<mat-dialog-content>
+  <mat-form-field>
+    <mat-label>Note content</mat-label>
+    <input matInput [(ngModel)]="noteText">
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Cancel</button>
+  <button mat-button color="red" (click)="action()">{{ data ? 'Update' : 'Add' }}</button>
+</mat-dialog-actions>

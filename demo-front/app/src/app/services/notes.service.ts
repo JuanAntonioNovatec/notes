@@ -17,9 +17,14 @@ export class NotesService {
     return this.http.get<Note[]>(this.apiUrl);
   }
 
-  addNote(text: string): void {
-    // const nuevaNota: Note = {  };
-    // this.notas.push(nuevaNota);
+  addNote(noteText: string): Observable<Note> {
+    return this.http.post<Note>(this.apiUrl, { text: noteText });
+  }
+
+  updateNote(note: Note): Observable<Note> {
+    console.log('yeeehhh updating!!!!');
+    console.log(note);
+    return this.http.put<Note>(`${this.apiUrl}/${note.id}`, note);
   }
 
   // updateNote(id: number, text: string): void {
@@ -29,7 +34,7 @@ export class NotesService {
   //   }
   // }
   //
-  // eliminarNota(id: number): void {
-  //   this.notas = this.notas.filter(nota => nota.id !== id);
-  // }
+  deleteNote(id: number): Observable<string> {
+    return this.http.delete<string>(`${this.apiUrl}/${id}`);
+  }
 }

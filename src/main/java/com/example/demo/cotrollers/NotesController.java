@@ -51,7 +51,7 @@ public class NotesController {
         Optional<Note> notaOptional = noteRepository.findById(id);
         if (notaOptional.isPresent()) {
             noteRepository.delete(notaOptional.get());
-            return ResponseEntity.ok("Nnote deleted successfully.");
+            return ResponseEntity.noContent().build();
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Note not found, check the id in the url.");
         }

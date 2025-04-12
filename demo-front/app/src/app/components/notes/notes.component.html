@@ -2,19 +2,19 @@
 
 
 <mat-list>
-  <h3 mat-subheader>Notas</h3>
-  <mat-list-item *ngFor="let nota of notes; let i = index"
+  <h3 mat-subheader>Notes list</h3>
+  <mat-list-item *ngFor="let note of notes; let i = index"
                  [ngClass]="getLineColor(i)"
                  class="nota-item">
     <div class="nota-content">
       <div style="flex-grow: 1;">
-        {{ nota.text }}
+        {{ note.text }}
       </div>
       <div>
-        <button mat-icon-button (click)="updateNote(nota)" aria-label="Editar">
+        <button mat-icon-button (click)="updateNote(note)" aria-label="Editar">
           <mat-icon>edit</mat-icon> <!-- Icono de editar -->
         </button>
-        <button mat-icon-button color="warn" (click)="deleteNote(nota.id)" aria-label="Eliminar">
+        <button mat-icon-button color="warn" (click)="deleteNote(note.id)" aria-label="Eliminar">
           <mat-icon>delete</mat-icon> <!-- Icono de eliminar -->
         </button>
       </div>
@@ -22,4 +22,8 @@
   </mat-list-item>
 </mat-list>
 
-
+<div class="add-note-button">
+  <button mat-fab color="primary" (click)="addNote()" aria-label="Añadir Nota">
+    <mat-icon>add</mat-icon> <!-- Icono de añadir -->
+  </button>
+</div>

@@ -30,3 +30,14 @@
 button {
   margin-left: 10px; /* Espaciado entre botones */
 }
+
+.add-note-button {
+  display: flex;
+  justify-content: center;  /* Centra el contenido horizontalmente */
+  align-items: center;      /* Opcional: centra el contenido verticalmente (si es necesario) */
+  margin-top: 20px;        /* Espaciado superior */
+}
+
+.mat-fab {
+  margin: 0; /* Elimina márgenes por defecto del FAB */
+}
