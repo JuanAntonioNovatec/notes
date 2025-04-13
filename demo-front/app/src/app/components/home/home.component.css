@@ -1,0 +1,31 @@
+
+.bg {
+  animation: bg 1s forwards;
+  fill: #E23237;
+  stroke: #E23237;
+  stroke-width: 2px;
+  stroke-dashoffset: 0;
+  stroke-dasharray: 900px;
+
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 3s ease-in;
+}
+
+
+.svg-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+}

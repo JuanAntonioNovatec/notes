@@ -14,7 +14,7 @@
         <button mat-icon-button (click)="updateNote(note)" aria-label="Editar">
           <mat-icon>edit</mat-icon> <!-- Icono de editar -->
         </button>
-        <button mat-icon-button color="warn" (click)="deleteNote(note.id)" aria-label="Eliminar">
+        <button mat-icon-button color="warn" (click)="openDeleteConfirmDialog(note.id)" aria-label="Eliminar">
           <mat-icon>delete</mat-icon> <!-- Icono de eliminar -->
         </button>
       </div>

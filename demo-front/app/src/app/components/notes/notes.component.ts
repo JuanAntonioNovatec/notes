@@ -9,6 +9,7 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatDialog} from '@angular/material/dialog';
 import {NoteDetailComponent} from '../note-detail/note-detail.component';
 import {DialogActions} from '../note-detail/DialogActionModes';
+import {ConfirmDialogComponent} from '../../confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-notes',
@@ -33,6 +34,7 @@ export class NotesComponent {
 
   constructor(
     private notesService: NotesService,
+
   public dialog: MatDialog
   ) { }
 
@@ -73,6 +75,18 @@ export class NotesComponent {
 
   }
 
+  openDeleteConfirmDialog(id: number): void {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent);
+
+    dialogRef.afterClosed().subscribe(result => {
+
+      console.log('result', result);
+      if (result) {
+        this.deleteNote(id);  // Llama a tu función de eliminación aquí
+      }
+    });
+  }
+
   getLineColor(index: number) {
     switch (index % 3) { // Por ejemplo, alternar entre 3 colores
       case 0: return 'color-line-1';
@@ -102,16 +116,18 @@ export class NotesComponent {
   deleteNote(id: number) {
     console.log('delete', id)
     this.notesService.deleteNote(id).subscribe(next => {
-      //this.notes = notes;
       console.log('result', next)
       this._snackBar.open('Note deleted !');
-      );
       this.getAllNotes(false)
+      });
 
-    });
-  }
 
-  addNote() {
+    };
+
+  addNote(){
     this.openNoteDialog()
   }
-}
+
+  }
+
+
