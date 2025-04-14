@@ -6,6 +6,11 @@ import {Grid, IconButton, TextField} from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';     // Importa el icono de editar
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 import axios from "axios";
 import Button from "@mui/material/Button";
 import Snackbar from '@mui/material/Snackbar'; // Importa el Snackbar
@@ -27,6 +32,19 @@ const Notes = () => {
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+    const [openDialog, setOpenDialog] = useState(false);
+    const [noteToDelete, setNoteToDelete] = useState(null);
+
+    const handleOpenDialog = (id) => {
+        console.log('here!');
+        setNoteToDelete(id);
+        setOpenDialog(true);
+    };
+
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+        setNoteToDelete(null);
+    };
 
     const fetchData = async () => {
         try {
@@ -74,6 +92,27 @@ const Notes = () => {
         // Actualiza el estado `items` para incluir la nueva nota
     };
 
+    const handleDelete = async () => {
+        try {
+            // Realiza la solicitud DELETE a tu API
+            await axios.delete(`http://localhost:8080/api/notes/${noteToDelete}`).then(result => {
+                fetchData();
+                setSnackbarMessage('Note deleted  successfuly!'); // Establecer el mensaje de éxito
+                setOpenSnackbar(true); // Mostrar el Snackbar
+            })
+
+            // Actualiza la lista de notas después de la eliminación
+            setOpenDialog(false);
+            fetchData(); // Llama a fetchData para obtener la lista actualizada
+        } catch (error) {
+            console.error("Error al eliminar la nota: ", error);
+            // Manejar error si es necesario, por ejemplo, mostrando un snackbar
+            setSnackbarMessage('Error al eliminar la nota.');
+            setSnackbarSeverity('error');
+            setOpenSnackbar(true);
+        }
+    };
+
     return (
         <div>
             <h1>Notas</h1>
@@ -111,7 +150,7 @@ const Notes = () => {
                                 </IconButton>
                             </Grid>
                             <Grid item>
-                                <IconButton onClick={() => handleDelete(item.id)} color="secondary">
+                                <IconButton onClick={() => handleOpenDialog(item.id)} color="secondary">
                                     <DeleteIcon />
                                 </IconButton>
                             </Grid>
@@ -125,6 +164,22 @@ const Notes = () => {
                     {snackbarMessage}
                 </MuiAlert>
             </Snackbar>
+            <Dialog open={openDialog} onClose={handleCloseDialog}>
+                <DialogTitle>Confirmar Eliminación</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        ¿Estás seguro de que deseas eliminar esta nota?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseDialog} color="primary">
+                        Cancelar
+                    </Button>
+                    <Button onClick={handleDelete} color="secondary">
+                        Eliminar
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div>
     );
 }
