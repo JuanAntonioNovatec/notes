@@ -10,6 +10,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {NoteDetailComponent} from '../note-detail/note-detail.component';
 import {DialogActions} from '../note-detail/DialogActionModes';
 import {ConfirmDialogComponent} from '../../confirm-dialog/confirm-dialog.component';
+import {ErrorService} from '../../services/errors-dialog/errors-dialog.service';
 
 @Component({
   selector: 'app-notes',
@@ -34,7 +35,7 @@ export class NotesComponent {
 
   constructor(
     private notesService: NotesService,
-
+    private errorService: ErrorService,
   public dialog: MatDialog
   ) { }
 
@@ -106,6 +107,15 @@ export class NotesComponent {
           duration: 1000,
         });
       }
+    }, error => {
+      console.log(error)
+      this.errorService.showError(
+        'Seems to bee some problem fetching data. Please check the api status.',
+        '400px'
+      );
+      // this._snackBar.open('Server error', undefined, {
+      //   duration: 1000,
+      // });
     });
   }
 

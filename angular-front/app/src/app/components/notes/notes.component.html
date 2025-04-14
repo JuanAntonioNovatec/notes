@@ -1,8 +1,5 @@
-<p>notes works!</p>
-
-
+<h1 mat-subheader>Your Notes </h1>
 <mat-list>
-  <h3 mat-subheader>Notes list</h3>
   <mat-list-item *ngFor="let note of notes; let i = index"
                  [ngClass]="getLineColor(i)"
                  class="nota-item">

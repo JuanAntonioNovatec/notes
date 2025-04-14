@@ -1,0 +1,17 @@
+.alert-title {
+  color: #ff0202;
+  display: flex; /* Usar flexbox para alinear hijos */
+  align-items: center; /* Alinear verticalmente al centro */
+  font-size: 24px; /* Ajustar tamaño del texto, si es necesario */
+}
+
+.alert-content {
+  display: flex;
+  align-items: center;
+  color: #333;
+}
+.alert-icon {
+  font-size: 24px; /* Tamaño del icono */
+  margin-right: 8px; /* Espacio entre el icono y el texto */
+  color: red; /* Color del icono */
+}
