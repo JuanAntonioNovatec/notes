@@ -10,7 +10,9 @@ const Navbar = () => {
         <AppBar position="static">
             <Toolbar>
                 <Typography variant="h6" sx={{ flexGrow: 1 }}>
-                    Mi Aplicación
+                    <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+                        Notes app
+                    </Link>
                 </Typography>
                 <Button color="inherit" component={Link} to="/">
                     Home

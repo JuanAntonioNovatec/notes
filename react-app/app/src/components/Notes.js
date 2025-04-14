@@ -17,14 +17,6 @@ import Snackbar from '@mui/material/Snackbar'; // Importa el Snackbar
 import MuiAlert from '@mui/material/Alert';
 
 
-const handleEdit = (id) => {
-    console.log("Editar item con ID:", id);
-};
-
-const handleDelete = (id) => {
-    console.log("Eliminar item con ID:", id);
-};
-
 const Notes = () => {
 
     const [items, setItems] = useState([]);
@@ -34,11 +26,19 @@ const Notes = () => {
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
     const [openDialog, setOpenDialog] = useState(false);
     const [noteToDelete, setNoteToDelete] = useState(null);
+    const [editingNoteId, setEditingNoteId] = useState(null);
 
     const handleOpenDialog = (id) => {
-        console.log('here!');
+
         setNoteToDelete(id);
         setOpenDialog(true);
+    };
+
+    const handleEdit = (id) => {
+        // Carga la nota a editar
+        const noteToEdit = items.find(item => item.id === id);
+        setNewNote(noteToEdit.text); // Carga el texto en el campo de entrada
+        setEditingNoteId(id); // Guarda el ID de la nota que se está editando
     };
 
     const handleCloseDialog = () => {
@@ -48,11 +48,10 @@ const Notes = () => {
 
     const fetchData = async () => {
         try {
-            console.log('get hereeee');
             const response = await axios.get('http://localhost:8080/api/notes');
             setItems(response.data);
         } catch (error) {
-            console.error("Error al traer los datos: ", error);
+            console.error("Error fetching data: ", error);
         }
     };
 
@@ -67,29 +66,38 @@ const Notes = () => {
         setOpenSnackbar(false);
     };
 
-    const handleAddNote = async () => {
-        console.log("Agregar nueva nota");
-        console.log(newNote);
-        const noteToAdd = {
+    const handleAddOrUpdateNote = () => {
+
+
+        //return;
+        const noteToAddUpdate = {
             text: newNote
         }
         try {
-        const response = await axios.post('http://localhost:8080/api/notes', noteToAdd).then(result =>
-            {
-                fetchData();
-                setSnackbarMessage('Note saved successfuly!'); // Establecer el mensaje de éxito
-                setOpenSnackbar(true); // Mostrar el Snackbar
-            })
-        } catch (error) {
-            console.error("Something wrong saveing the note : ", error);
+            if (editingNoteId) {
+                axios.put(`http://localhost:8080/api/notes/${editingNoteId}`, noteToAddUpdate).then(result => {
+                    setNewNote('');
+                    setEditingNoteId(null);
+                    setSnackbarMessage('Note updated!!');
+                    setOpenSnackbar(true);
+                    fetchData();
+                })
+            } else {
+                const response = axios.post('http://localhost:8080/api/notes', noteToAddUpdate).then(result => {
+                    setOpenSnackbar(true); // Mostrar el Snackbar
+                    setEditingNoteId(null);
+                    setSnackbarMessage('Note created!!');
+                    setOpenSnackbar(true);
+                    fetchData();
+                })
+            }
 
-            // Opcional: mostrar un mensaje de error en un snackbar
+
+        } catch (error) {
             setSnackbarMessage('Something wrong saving the note.');
-            setSnackbarSeverity('error'); // change the severity to 'error'
+            setSnackbarSeverity('error');
             setOpenSnackbar(true);
         }
-        // Aquí puedes abrir un modal o un formulario para agregar una nueva nota
-        // Actualiza el estado `items` para incluir la nueva nota
     };
 
     const handleDelete = async () => {
@@ -118,49 +126,57 @@ const Notes = () => {
             <h1>Notas</h1>
             <p>Aquí puedes agregar y gestionar tus notas.</p>
             {/* Puedes agregar más contenido según sea necesario */}
-            <Grid container spacing={2} alignItems="center" style={{ marginBottom: '16px' }}>
+            <Grid container spacing={2} alignItems="center" style={{marginBottom: '16px'}}>
                 <Grid item xs={8}>
                     <TextField
                         fullWidth
                         variant="outlined"
-                        label="Nueva Nota"
+                        label={editingNoteId ? "Update Note" : "Add Note"}
                         value={newNote}
                         onChange={(e) => setNewNote(e.target.value)}
                     />
                 </Grid>
                 <Grid item xs={4}>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        startIcon={<AddIcon />}
-                        onClick={handleAddNote}
-                    >
-                        Agregar Nota
-                    </Button>
+                    {newNote.trim() ? ( // Mostrar el botón solo si hay texto
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            startIcon={<AddIcon/>}
+                            onClick={handleAddOrUpdateNote}
+                        >
+                            {editingNoteId ? "Update Note" : "Add Note"}
+                        </Button>
+                    ) : null} {/* Si no hay texto, no mostrar nada */}
                 </Grid>
             </Grid>
             <List>
-                {items.map((item) => (
-                    <ListItem key={item.id} divider>
-                        <ListItemText primary={item.text} />
-                        <Grid container spacing={1} justifyContent="flex-end">
-                            <Grid item>
-                                <IconButton onClick={() => handleEdit(item.id)} color="primary">
-                                    <EditIcon/>
-                                </IconButton>
-                            </Grid>
-                            <Grid item>
-                                <IconButton onClick={() => handleOpenDialog(item.id)} color="secondary">
-                                    <DeleteIcon />
-                                </IconButton>
-                            </Grid>
-                        </Grid>
+                {items.length === 0 ? (
+                    <ListItem>
+                        <ListItemText primary="No hay notas disponibles."/>
                     </ListItem>
-                ))}
+                ) : (
+                    items.map((item) => (
+                        <ListItem key={item.id} divider>
+                            <ListItemText primary={item.id + ': ' + item.text}/>
+                            <Grid container spacing={1} justifyContent="flex-end">
+                                <Grid item>
+                                    <IconButton onClick={() => handleEdit(item.id)} color="primary">
+                                        <EditIcon/>
+                                    </IconButton>
+                                </Grid>
+                                <Grid item>
+                                    <IconButton onClick={() => handleOpenDialog(item.id)} color="secondary">
+                                        <DeleteIcon/>
+                                    </IconButton>
+                                </Grid>
+                            </Grid>
+                        </ListItem>
+                    ))
+                )}
             </List>
 
             <Snackbar open={openSnackbar} autoHideDuration={3000} onClose={handleCloseSnackbar}>
-                <MuiAlert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                <MuiAlert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{width: '100%'}}>
                     {snackbarMessage}
                 </MuiAlert>
             </Snackbar>
