@@ -1,11 +1,24 @@
 <mat-toolbar color="primary">
   <mat-icon>assignment</mat-icon>  Notes App
   <span class="spacer"></span>
-  <a mat-button routerLink="/" routerLinkActive="active">
+  <a *ngIf="role === 'admin'"
+     mat-button routerLink="/users" routerLinkActive="active"
+  >
+    <mat-icon>group</mat-icon> Users
+  </a>
+  <a
+     mat-button routerLink="/home" routerLinkActive="active"
+  >
     <mat-icon>home</mat-icon> Home
   </a>
   <a mat-button routerLink="/notes" routerLinkActive="active">
     <mat-icon>note</mat-icon> Notes
   </a>
+  <mat-icon
+    [ngStyle]="{'color': role === 'admin' ? 'red' : role === 'user' ? 'blue' : 'gray'}">
+    shield_person
+  </mat-icon>
+
+
 </mat-toolbar>
 <router-outlet></router-outlet>

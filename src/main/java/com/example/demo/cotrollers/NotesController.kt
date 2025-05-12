@@ -1,60 +1,37 @@
-package com.example.demo.cotrollers;
-import com.example.demo.models.Note;
-import com.example.demo.repositories.NoteRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+package com.example.demo.controllers
 
-import java.util.List;
-import java.util.Optional;
+import com.example.demo.models.Note
+import com.example.demo.repositories.NoteRepository
+import com.example.demo.sevices.NotesService
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api")
-public class NotesController {
+class NotesController(private val noteRepository: NoteRepository) {
 
     @Autowired
-    private NoteRepository noteRepository;
+    private lateinit var notesService: NotesService
 
-    @GetMapping("/hi")
-    public String hi() {
-        return "Hello, World!";
-    }
 
     @PostMapping("/notes")
-    public Note addNote(@RequestBody Note nota) {
-        return noteRepository.save(nota);
-    }
+    fun addNote(@RequestBody nota: Note): Note =  notesService.saveNote(nota)
 
     @GetMapping("/notes")
-    public List<Note> getNotes() {
-        return noteRepository.findAll();
-    }
-
+    fun getNotes(): List<Note> = notesService.getAllNotes()
 
     @PutMapping("/notes/{id}")
-    public ResponseEntity<Note> updateNote(@PathVariable Long id, @RequestBody Note newDetails) {
-        Optional<Note> notaOpt = noteRepository.findById(id);
-
-        if (notaOpt.isPresent()) {
-            Note note = notaOpt.get();
-            note.setText(newDetails.getText()); // AUpdate the note
-            final Note updatedNote = noteRepository.save(note); // ave updated note
-            return ResponseEntity.ok(updatedNote);
-        } else {
-            return ResponseEntity.notFound().build(); // Return 404 if the note with id is not found
-        }
-    }
+    fun updateNote(@PathVariable id: Long, @RequestBody newDetails: Note): ResponseEntity<Note> =
+        notesService.updateNote(id, newDetails)
 
     @DeleteMapping("/notes/{id}")
-    public ResponseEntity<String> deleteNote(@PathVariable Long id) {
-        Optional<Note> notaOptional = noteRepository.findById(id);
-        if (notaOptional.isPresent()) {
-            noteRepository.delete(notaOptional.get());
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Note not found, check the id in the url.");
-        }
-    }
+    fun deleteNote(@PathVariable id: Long):
+            ResponseEntity<String> = notesService.deleteNote(id)
+
+    @DeleteMapping("/notes/all")
+    fun deleteAllNotes(): ResponseEntity<String> =
+        notesService.deleteAllNotes();
 
 }

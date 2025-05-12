@@ -31,3 +31,25 @@ nav a.active {
   font-weight: bold;
   text-decoration: underline;
 }
+
+.mat-mdc-error-snack-bar {
+  background-color: #f44336 !important;
+  color: #fff !important;
+  border-radius: 12px !important; /* si quieres redondear */
+  /* otros estilos que desees */
+}
+
+button.mat-icon-button {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  outline: none !important; /* eliminar outline si lo hay */
+}
+
+/* Si aún hay efecto en hover o focus, aseguramos que no tenga fondo */
+button.mat-icon-button:hover,
+button.mat-icon-button:focus {
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}

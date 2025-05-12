@@ -1,5 +1,5 @@
 import {Component, inject} from '@angular/core';
-import {NotesService} from '../../services/notes.service';
+import {NotesService} from '../../services/notes/notes.service';
 import {Note} from '../../interfaces/note';
 import {MatList, MatListItem, MatListSubheaderCssMatStyler} from '@angular/material/list';
 import {NgClass, NgForOf} from '@angular/common';
@@ -52,14 +52,14 @@ export class NotesComponent {
       if (result) {
         console.log('result');
         console.log(result);
-        if (result.action === DialogActions.CREATE) { //new note created
+        if (result.action === DialogActions.POSITIVE) { //new note created
           this.notesService.addNote(result.noteText).subscribe(result => {
             console.log('Created!!')
             this._snackBar.open('New note added !');
             this.getAllNotes(false);
           })
 
-        } else if(result.action === DialogActions.UPDATE) {
+        } else if(result.action === DialogActions.NEGATIVE) {
           console.log('A update hostia');
           const note: Note = {
             text: result.noteText,
@@ -77,7 +77,15 @@ export class NotesComponent {
   }
 
   openDeleteConfirmDialog(id: number): void {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent);
+    const dialogRef = this.dialog.open(
+      ConfirmDialogComponent, {
+        data: {
+          title: 'Delete a note',
+          content: 'Are you sure?'
+        }
+      }
+
+    );
 
     dialogRef.afterClosed().subscribe(result => {
 
@@ -97,7 +105,10 @@ export class NotesComponent {
     }
   }
 
-
+  /**
+   * reload all notes from database
+   * @param showSnackbar Show or not the snackbar. true by default!
+   */
   getAllNotes(showSnackbar: boolean = true) {
     console.log('getNotes');
     this.notesService.getNotes().subscribe(notes => {
@@ -138,6 +149,47 @@ export class NotesComponent {
     this.openNoteDialog()
   }
 
+  deleteAllNotes() {
+    const dialogRef = this.dialog.open(
+      ConfirmDialogComponent, {
+        data: {
+          title: 'Delete all notes.',
+          content: 'Are you sure? All note will be deleted.'
+        }
+      });
+    dialogRef.afterClosed().subscribe(result => {
+      //console.log('result', result);
+      //console.log(result);
+      if (result == DialogActions.POSITIVE) { //new note created
+        console.log('delete all');
+        this.notesService.deleteAllNotes().subscribe(result => {
+         console.log('removed', result)
+         console.log(result)
+         // @ts-ignore
+         this._snackBar.open(result.message, 'Close');
+         console.log('delete all');
+         this.getAllNotes(false);
+        })
+
+      } else if (result === DialogActions.NEGATIVE) {
+        console.log('operation cancelled');
+
+        /**
+         console.log('A update hostia');
+         const note: Note = {
+         text: result.noteText,
+         id: result.noteId
+         }
+         this.notesService.updateNote(note).subscribe(result => {
+         console.log('Created!!')
+         this._snackBar.open('Note updated !');
+         this.getAllNotes(false);
+         })
+         **/
+      }
+
+    });
   }
+}
 
 

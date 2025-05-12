@@ -1,3 +1,15 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Distribuye título y botón */
+  margin-bottom: 20px;
+}
+
+.btn {
+  /* Puedes personalizar el botón según tu estilo */
+}
+
+
 .nota-item {
   display: flex; /* Hacer que el item sea un contenedor flexible */
   padding: 10px; /* Espaciado */
@@ -40,4 +52,9 @@ button {
 
 .mat-fab {
   margin: 0; /* Elimina márgenes por defecto del FAB */
+}
+
+.mat-mdc-simple-snack-bar {
+  background-color: #f44336 !important;
+  color: #fff !important;
 }

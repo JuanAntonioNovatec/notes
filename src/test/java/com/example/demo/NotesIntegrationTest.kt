@@ -1,120 +1,116 @@
-import com.example.demo.models.Note;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import com.example.demo.models.Note
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.io.OutputStream
+import java.net.HttpURLConnection
+import java.net.URL
+import java.util.List
+import kotlin.test.assertTrue
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.List;
 
 public class NotesIntegrationTest {
 
+	private val objectMapper = jacksonObjectMapper()
 	@Test
-	public void testHelloWorldEndpoint() throws Exception {
-		String urlString = "http://localhost:8080/api/hi";
-
-		URL url = new URL(urlString);
-		HttpURLConnection con = (HttpURLConnection) url.openConnection();
-		con.setRequestMethod("GET");
+	fun testHelloWorldEndpoint() {
+		val urlString = "http://localhost:8080/api/hi"
+		val url = URL(urlString)
+		val connection = url.openConnection() as HttpURLConnection
+		connection.requestMethod = "GET"
 
 		// Check 200 status code
-		assertEquals(200, con.getResponseCode());
+		assertEquals(200, connection.responseCode)
 
-		// Check response content
-		BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-		StringBuilder responseString = new StringBuilder();
-		String line;
-		while ((line = in.readLine()) != null) {
-			responseString.append(line);
-		}
-		in.close();
+		// Leer la respuesta
+		val response = connection.inputStream.bufferedReader().use { it.readText() }
 
-		// Check response.
-		assertEquals("Hello, World!", responseString.toString());
+		// Comprobar la respuesta
+		assertEquals("Hello, World!", response)
 	}
 
 	@Test
-	public void testUnexistentEndpoint() throws Exception {
-		String urlString = "http://localhost:8080/api/unexistent"; // Asegúrate de que el puerto sea correcto
+	fun testUnexistentEndpoint() {
+		val urlString = "http://localhost:8080/api/unexistent" // Asegúrate del puerto correcto
+		val url = URL(urlString)
+		val connection = url.openConnection() as HttpURLConnection
+		connection.requestMethod = "GET"
 
-		URL url = new URL(urlString);
-		HttpURLConnection con = (HttpURLConnection) url.openConnection();
-		con.setRequestMethod("GET");
-
-		// Check 404 status code
-		assertEquals(404, con.getResponseCode());
-
+		// Comprobar que el código de respuesta es 404
+		assertEquals(404, connection.responseCode)
 	}
 
 	@Test
-	public void testPostAndGetANote() throws Exception {
-		String postUrl = "http://localhost:8080/api/notes";
-		String getUrl = "http://localhost:8080/api/notes";
+	fun testPostAndGetANote() {
+		val postUrl = "http://localhost:8080/api/notes"
+		val getUrl = "http://localhost:8080/api/notes"
 
 		// Paso 1: Realizar el POST
-		String messageToPost = "{\"text\": \"taza\"}"; // Formato JSON
-		URL url = new URL(postUrl);
-		HttpURLConnection postCon = (HttpURLConnection) url.openConnection();
-		postCon.setRequestMethod("POST");
-		postCon.setRequestProperty("Content-Type", "application/json");
-		postCon.setDoOutput(true);
+		val messageToPost = """{"text": "taza"}""" // JSON
+		val url = URL(postUrl)
+		val postCon = url.openConnection() as HttpURLConnection
+		postCon.requestMethod = "POST"
+		postCon.setRequestProperty("Content-Type", "application/json")
+		postCon.doOutput = true
 
-
-		try (OutputStream os = postCon.getOutputStream()) {
-			byte[] input = messageToPost.getBytes("utf-8");
-			os.write(input, 0, input.length);
+		// Enviar datos
+		val os: OutputStream = postCon.outputStream
+		os.use {
+			it.write(messageToPost.toByteArray(Charsets.UTF_8))
 		}
-		assertEquals(200, postCon.getResponseCode());
-		URL getUrlObj = new URL(getUrl);
-		HttpURLConnection getCon = (HttpURLConnection) getUrlObj.openConnection();
-		getCon.setRequestMethod("GET");
-		assertEquals(200, getCon.getResponseCode());
-		BufferedReader in = new BufferedReader(new InputStreamReader(getCon.getInputStream()));
-		StringBuilder responseString = new StringBuilder();
-		String line;
-		while ((line = in.readLine()) != null) {
-			responseString.append(line);
-		}
-		in.close();
-		ObjectMapper objectMapper = new ObjectMapper();
-		List<Note> messages = objectMapper.readValue(responseString.toString(),
-				objectMapper.getTypeFactory().constructCollectionType(List.class, Note.class));
 
-		assertTrue(messages.stream().anyMatch(message -> "taza".equals(message.getText())), "El mensaje 'taza' no se encontró en la lista");
+		assertEquals(200, postCon.responseCode)
 
+		// Paso 2: Realizar el GET
+		val getUrlObj = URL(getUrl)
+		val getCon = getUrlObj.openConnection() as HttpURLConnection
+		getCon.requestMethod = "GET"
+
+		assertEquals(200, getCon.responseCode)
+
+		// Leer la respuesta
+		val response = getCon.inputStream.bufferedReader().use { it.readText() }
+
+		// Parsear JSON en lista de Notes
+		val messages: List<Note> = objectMapper.readValue(response, object : com.fasterxml.jackson.core.type.TypeReference<List<Note>>() {})
+
+		// Verificar que "taza" esté en los textos
+		assertTrue(messages.any { it.text == "taza" }, "El mensaje 'taza' no se encontró en la lista")
 	}
 
+
 	@Test
-	public void testPostAndDeleteNote() throws Exception {
-		String postUrl = "http://localhost:8080/api/notes";
-		String deleteUrl = "http://localhost:8080/api/notes/";
-		String jsonInputString = "{\"text\": \"taza\"}";
-		URL url = new URL(postUrl);
-		HttpURLConnection postCon = (HttpURLConnection) url.openConnection();
-		postCon.setRequestMethod("POST");
-		postCon.setRequestProperty("Content-Type", "application/json");
-		postCon.setDoOutput(true);
-		try (OutputStream os = postCon.getOutputStream()) {
-			byte[] input = jsonInputString.getBytes("utf-8");
-			os.write(input, 0, input.length);
+	fun testPostAndDeleteNote() {
+		val postUrl = "http://localhost:8080/api/notes"
+		val deleteUrl = "http://localhost:8080/api/notes/"
+
+		val jsonInputString = """{"text": "taza"}"""
+		val url = URL(postUrl)
+		val postCon = url.openConnection() as HttpURLConnection
+		postCon.requestMethod = "POST"
+		postCon.setRequestProperty("Content-Type", "application/json")
+		postCon.doOutput = true
+
+		// Enviamos el JSON del POST
+		postCon.outputStream.use { os ->
+			os.write(jsonInputString.toByteArray(Charsets.UTF_8))
 		}
-		assertEquals(200, postCon.getResponseCode());
-		BufferedReader in = new BufferedReader(new InputStreamReader(postCon.getInputStream()));
-		StringBuilder responseString = new StringBuilder();
-		String line;
-		while ((line = in.readLine()) != null) { responseString.append(line); }
-		in.close();
-		ObjectMapper objectMapper = new ObjectMapper();
-		Note note = objectMapper.readValue(responseString.toString(), Note.class);
-		int noteId = Math.toIntExact(note.getId());
-		URL deleteUrlObj = new URL(deleteUrl + noteId);
-		HttpURLConnection deleteRequest = (HttpURLConnection) deleteUrlObj.openConnection();
-		deleteRequest.setRequestMethod("DELETE");
-		assertEquals(204, deleteRequest.getResponseCode());
+		assertEquals(200, postCon.responseCode)
+
+		// Leemos la respuesta del POST para obtener el ID
+		val response = postCon.inputStream.bufferedReader().use { it.readText() }
+		val objectMapper = jacksonObjectMapper()
+		val note: Note = objectMapper.readValue(response, Note::class.java)
+		val noteId = note.id
+
+		// Realizar DELETE
+		val deleteUrlObj = URL("$deleteUrl$noteId")
+		val deleteRequest = deleteUrlObj.openConnection() as HttpURLConnection
+		deleteRequest.requestMethod = "DELETE"
+		assertEquals(204, deleteRequest.responseCode)
 	}
 }
 

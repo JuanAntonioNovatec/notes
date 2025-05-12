@@ -4,7 +4,7 @@
 # Bakend
 
 
-Todo está bajo la carpeta src
+Todo está bajo la carpeta src `./gradlew bootRun`
 
 Necesitamos tener corriendpo mysql y que mejor que hacerlo con Docker y para ello nada mejor que un docker-compose que automatiza el levantar la imagen con el usuario y contraseña que necesitamos.
 
@@ -12,6 +12,7 @@ Cómo?
 
 `docker-compose up`
 
+Una vez la base de datos corriendo
 
 # Front 
 

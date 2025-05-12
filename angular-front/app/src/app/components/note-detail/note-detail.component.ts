@@ -6,7 +6,7 @@ import {
   MatDialogActions,
   MatDialogTitle
 } from '@angular/material/dialog';
-import {NotesService} from '../../services/notes.service';
+import {NotesService} from '../../services/notes/notes.service';
 import {Note} from '../../interfaces/note';
 import {MatFormField, MatInput, MatLabel} from '@angular/material/input';
 import {MatButton} from '@angular/material/button';
@@ -34,7 +34,7 @@ import {DialogActions} from './DialogActionModes';
 export class NoteDetailComponent {
   noteText: string = '';
   noteId: number | null = null;
-  mode: DialogActions = DialogActions.CREATE
+  mode: DialogActions = DialogActions.POSITIVE
 
   constructor(
     public dialogRef: MatDialogRef<NoteDetailComponent>,
@@ -43,7 +43,7 @@ export class NoteDetailComponent {
   ) {
     if (data) {
       console.log('data', data);
-      this.mode = DialogActions.UPDATE
+      this.mode = DialogActions.NEGATIVE
       this.noteText = data.text; // Rellenar el contenido si se está editando
       this.noteId = data.id
 

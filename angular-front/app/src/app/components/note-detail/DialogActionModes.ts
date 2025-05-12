@@ -1,4 +1,4 @@
 export enum DialogActions {
-  CREATE,
-  UPDATE
+  NEGATIVE = 0,
+  POSITIVE = 1
 }

@@ -1,17 +1,23 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import {Note} from '../interfaces/note';
+import {Note} from '../../interfaces/note';
+import {BaseService} from '../baseService';
+
 
 
 @Injectable({
   providedIn: 'root'
 })
-export class NotesService {
+export class NotesService extends BaseService {
 
-  private apiUrl = 'http://localhost:8080/api/notes';
+  private finalEndpointName = 'notes';
+  private apiUrl: string = '';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+    super();
+    this.apiUrl = super.getFullUrl(this.finalEndpointName);
+  }
 
   getNotes(): Observable<Note[]> {
     return this.http.get<Note[]>(this.apiUrl);
@@ -37,4 +43,8 @@ export class NotesService {
   deleteNote(id: number): Observable<string> {
     return this.http.delete<string>(`${this.apiUrl}/${id}`);
   }
+  deleteAllNotes(): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/all`);
+  }
+
 }

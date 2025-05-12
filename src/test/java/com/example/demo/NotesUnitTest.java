@@ -1,6 +1,6 @@
 package com.example.demo;
 
-import com.example.demo.cotrollers.NotesController;
+import com.example.demo.controllers.NotesController;
 import com.example.demo.models.Note;
 import com.example.demo.repositories.NoteRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,8 +27,10 @@ public class NotesUnitTest {
 
     @Test
     public void testHiEndpoint() {
+        // Crear mock del repositorio
+        NoteRepository mockRepo = mock(NoteRepository.class);
         // Arrange
-        NotesController controller = new NotesController();
+        NotesController controller = new NotesController(mockRepo);
 
         // Act
         String response = controller.hi();
@@ -44,13 +46,13 @@ public class NotesUnitTest {
         note.setText("Test Note");
 
         // Configure the emuated repository
-        when(noteRepository.save(note)).thenReturn(note); // Devuelve la misma nota
+        when(noteRepository.save(note)).thenReturn(note);
 
 
         Note createdNote = noteController.addNote(note);
 
-        // Assert: Verifica que se haya guardado correctamente
+
         assertEquals("Test Note", createdNote.getText());
-        verify(noteRepository, times(1)).save(note); // Verifica que se llamó al método save
+        verify(noteRepository, times(1)).save(note);
     }
 }

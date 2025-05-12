@@ -1,4 +1,8 @@
-<h1 mat-subheader>Your Notes </h1>
+<div class="header">
+  <h1>Notas</h1>
+  <button (click)="deleteAllNotes()" class="btn btn-danger">Delete all</button>
+</div>
+
 <mat-list>
   <mat-list-item *ngFor="let note of notes; let i = index"
                  [ngClass]="getLineColor(i)"

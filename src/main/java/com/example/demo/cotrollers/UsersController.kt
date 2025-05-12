@@ -1,85 +1,93 @@
-package com.example.demo.cotrollers;
-import com.example.demo.models.User;
-import com.example.demo.repositories.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+package com.example.demo.controllers
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.example.demo.cotrollers.AuthenticationRequest
+import com.example.demo.models.User
+import com.example.demo.repositories.UserRepository
+import com.example.demo.security.JwtUtil
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.web.bind.annotation.*
+import java.sql.DriverManager.println
+import java.time.LocalDateTime
+import java.util.*
 
 @RestController
 @RequestMapping("/api")
-public class UsersController {
-
-    @Autowired
-    private UserRepository userRepository;
+class UsersController(
+    private val userRepository: UserRepository,
+    private val authenticationManager: AuthenticationManager,
+    private val passwordEncoder: PasswordEncoder,
+    private val jwtUtil: JwtUtil
+) {
 
     @PostMapping("/users")
-    public ResponseEntity<Map<String, Object>> addUser(@RequestBody User user) {
+    fun addUser(@RequestBody userFromRequest: User): ResponseEntity<out MutableMap<String, out Any?>?> {
+        val encoder = BCryptPasswordEncoder()
+        val hashedPassword = encoder.encode(userFromRequest.password)
 
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        String hashedPassword = passwordEncoder.encode(user.getPassword());
+        println("Password antes de hashear: ${userFromRequest.password}")
+        println("FirstName: ${userFromRequest.firstName}")
+        println("Password hasheada: $hashedPassword")
 
-        System.out.println("Password antes de hashear: " + user.getPassword());
-        System.out.println("Password hasheada: " + hashedPassword);
+        val hashedUser = User()
+        hashedUser.username = userFromRequest.username
+        hashedUser.password = hashedPassword
+        hashedUser.firstName = userFromRequest.firstName
+        hashedUser.lastName = userFromRequest.lastName
+        hashedUser.createdAt = LocalDateTime.now()
+        hashedUser.isActive = true
+        hashedUser.role = "user"
 
-        User user2 = new User();
-        user2.setUsername(user2.getUsername());
 
-        user2.setPassword(hashedPassword);
-        user2.setFirstName(user2.getFirstName());
-        user2.setLastName(user2.getLastName());
-        user2.setCreatedAt(LocalDateTime.now());
-        user2.setIsActive(true);
+        println("User: $userFromRequest")
+        val newUser = userRepository.save(hashedUser)
 
-        System.out.println("User2: " + user2);
-        User newUser = userRepository.save(user);
+        val response = mutableMapOf(
+            "id" to newUser.id,
+            "username" to newUser.username,
+        )
+        return ResponseEntity.status(HttpStatus.CREATED).body(response)
+    }
 
-        // Crear un mapa para devolver la información relevante
-        Map<String, Object> response = new HashMap<>();
-        response.put("id", newUser.getId());
-        response.put("username", newUser.getUsername());
-        response.put("email", newUser.getEmail());
+    @PostMapping("/login")
+    fun login(@RequestBody authRequest: AuthenticationRequest): ResponseEntity<Any> {
+        println("AuthRequest: $authRequest")
+        val userOpt = userRepository.findByUsername(authRequest.username ?: "")
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        // return userRepository.save(user2);
+        println("User: $userOpt")
+
+        if (userOpt.isEmpty) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(mapOf("error" to "Usuario no encontrado"))
+        }
+
+        val user = userOpt.get()
+
+        println("Usuario: ${user.username}")
+
+        // Verifica la contraseña ingresada con la almacenada (hasheada)
+        val passwordMatches = passwordEncoder.matches(
+            (authRequest.password ?: "") as CharSequence?,
+            user.password ?: ""
+        )
+
+        if (!passwordMatches) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(mapOf("error" to "Contraseña incorrecta"))
+        }
+
+        val jwt = jwtUtil.generateToken(user.username!!)
+
+        println("jwt: $jwt")
+        val response = mapOf(
+            "token" to jwt,
+            "role" to user.role
+        )
+
+        return ResponseEntity.ok(response)
     }
 
     @GetMapping("/users")
-    public List<User> getUsers() {
-        return userRepository.findAll();
-    }
-
-
-//    @PutMapping("/users/{id}")
-//    public ResponseEntity<User> updateNote(@PathVariable Long id, @RequestBody User newUser) {
-//        Optional<User> userOpt = userRepository.findById(id);
-//
-//        if (userOpt.isPresent()) {
-//            User user = userOpt.get();
-//            user.setEmail(newUser.getEmail()); // AUpdate the note
-//            final Note updatedNote = noteRepository.save(note); // ave updated note
-//            return ResponseEntity.ok(updatedNote);
-//        } else {
-//            return ResponseEntity.notFound().build(); // Return 404 if the note with id is not found
-//        }
-//    }
-
-//    @DeleteMapping("/notes/{id}")
-//    public ResponseEntity<String> deleteNote(@PathVariable Long id) {
-//        Optional<Note> notaOptional = noteRepository.findById(id);
-//        if (notaOptional.isPresent()) {
-//            noteRepository.delete(notaOptional.get());
-//            return ResponseEntity.noContent().build();
-//        } else {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Note not found, check the id in the url.");
-//        }
-//    }
-
+    fun getUsers(): List<User> = userRepository.findAll()
 }
