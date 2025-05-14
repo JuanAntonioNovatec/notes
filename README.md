@@ -1,38 +1,50 @@
 
 
+This is just an example project of the use of SpringBoot on the background and a couple of frontend technologies to use the API builded with it
 
-# Bakend
+
+# Backend
 
 
-Todo está bajo la carpeta src `./gradlew bootRun`
+All is under the  src folder in the root source 
+Move there and execute `./gradlew bootRun`
 
-Necesitamos tener corriendpo mysql y que mejor que hacerlo con Docker y para ello nada mejor que un docker-compose que automatiza el levantar la imagen con el usuario y contraseña que necesitamos.
 
-Cómo?
+This demo project uses MySQL as database engine  and the best way to have one running is using docker and to do it 
+with the corrext user and database config us better use docker executing docker with:
 
 `docker-compose up`
 
-Una vez la base de datos corriendo
+With the database running we can run any front version that we want, or both to compare the differences (why not?) 
 
-# Front 
+# Frontend 
 
-## Version A (Angular)
+## A version (Angular)
 
-Nos movemos a `/angular-front/app` y ahí ejecutamos `ng serve`
+Move to  `/angular-front/app` and then run   `ng serve`
 
-## Version B (React)
 
-Nos movemos a `/react-app/app` y ahí ejecutamos `npm start`
+
+## B version (React)
+
+Basically try to replicate the same behaviour as in Angular but using react framework
+
+Move to  `/react-app/app` and then run   `npm start`
+
 
 
 
 # Testing
 
-## Test endpoint:
+You can test the API by different ways 
 
-Para comprobar que se ha levantado bien puedes testearlo con cualquiera de las versiones del front o hacien por terminal la petición más simple del api, e clásico hello world:
+## Simplest test about test endpoint:
+
+To check if API  is running is as simple as execute a CURL comand like this:
 
 ```
-curl http://localhost:8080/hi-notes
+curl http://localhost:8080/api/test
 Hello, World!
 ```
+
+or use some tool as Insomnia or Postman (as you prefer)

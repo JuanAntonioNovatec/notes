@@ -10,11 +10,9 @@ import java.util.Optional
 
 
 @Service
-class NotesService {
-
-    @Autowired
-    private lateinit var noteRepository: NoteRepository
-
+open class NotesService(
+    protected val noteRepository: NoteRepository
+) {
     /**
      * Get all notes saved or a empty list if there's not in the database.
      */

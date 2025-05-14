@@ -1,58 +1,82 @@
-package com.example.demo;
+import com.example.demo.models.Note
+import com.example.demo.controllers.NotesController
+import com.example.demo.cotrollers.TestController
+import com.example.demo.sevices.NotesService
+import com.example.demo.repositories.NoteRepository
 
-import com.example.demo.controllers.NotesController;
-import com.example.demo.models.Note;
-import com.example.demo.repositories.NoteRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNotNull
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
+import org.mockito.Mock
+import org.mockito.InjectMocks
+import org.mockito.Mockito.mock
 
-public class NotesUnitTest {
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.times
+import org.mockito.Mockito.`when`
+import org.mockito.MockitoAnnotations
 
-    @InjectMocks
-    private NotesController noteController;
+class NotesTest {
 
     @Mock
-    private NoteRepository noteRepository;
+    lateinit var noteRepository: NoteRepository
+
+    @Mock
+    lateinit var notesService: NotesService
+    @Mock
+    lateinit var testController: TestController
+
+    lateinit var notesController: NotesController
+
+    private lateinit var closeable: AutoCloseable
 
     @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this); // Inicializa los mocks
+    fun setUp() {
+        closeable = MockitoAnnotations.openMocks(this)
+        // Crear la instancia de NotesController pasando los mocks
+        notesController = NotesController(noteRepository, notesService)
+    }
+
+    @AfterEach
+    fun tearDown() {
+        closeable.close()
     }
 
     @Test
-    public void testHiEndpoint() {
-        // Crear mock del repositorio
-        NoteRepository mockRepo = mock(NoteRepository.class);
-        // Arrange
-        NotesController controller = new NotesController(mockRepo);
+    fun testHiEndpoint() {
+        // Crear mock del repositorio (esto ya lo hace @Mock y @InjectMocks)
+        // No es necesario crear manualmente el controller, gracias a @InjectMocks
+        // pero si quieres hacerlo manualmente:
 
-        // Act
-        String response = controller.hi();
-
-        // Assert
-        assertEquals("Hello, World!", response);
+        val response = testController.hi()
+        assertEquals("Hello, World!", response)
     }
 
+
     @Test
-    public void testAddNote() {
-        // Arrange: Crea una nota de prueba
-        Note note = new Note();
-        note.setText("Test Note");
+    fun testAddNote() {
+        val note = Note(id = null, text = "Test Note")
+        val savedNote = Note(id = 1L, text = "Test Note")
 
-        // Configure the emuated repository
-        when(noteRepository.save(note)).thenReturn(note);
-
-
-        Note createdNote = noteController.addNote(note);
+        // Mockea noteRepository.save() para devolver savedNote
+        `when`(noteRepository.save(note)).thenReturn(savedNote)
 
 
-        assertEquals("Test Note", createdNote.getText());
-        verify(noteRepository, times(1)).save(note);
+        assertNotNull(notesController)
+        println(notesController.noteRepository)
+        // Llamada al método del controlador
+        val result = notesController.addNote(note)
+
+        // Verificación
+        assertEquals("Test Note", result.text)
+
+        // Verificamos que se llamó a save en el repositorio
+        verify(noteRepository, times(1)).save(note)
+
+        // También puedes verificar que se llamó a saveNote en el servicio
+        verify(notesService, times(1)).saveNote(note)
     }
 }

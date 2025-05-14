@@ -1,18 +1,16 @@
 package com.example.demo.controllers
 
-import com.example.demo.cotrollers.AuthenticationRequest
+import com.example.demo.models.AuthenticationRequest
 import com.example.demo.models.User
 import com.example.demo.repositories.UserRepository
 import com.example.demo.security.JwtUtil
+import com.example.demo.sevices.UsersService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.*
 import java.sql.DriverManager.println
-import java.time.LocalDateTime
-import java.util.*
 
 @RestController
 @RequestMapping("/api")
@@ -20,37 +18,39 @@ class UsersController(
     private val userRepository: UserRepository,
     private val authenticationManager: AuthenticationManager,
     private val passwordEncoder: PasswordEncoder,
-    private val jwtUtil: JwtUtil
+    private val jwtUtil: JwtUtil,
+    private val usersService: UsersService
 ) {
 
     @PostMapping("/users")
-    fun addUser(@RequestBody userFromRequest: User): ResponseEntity<out MutableMap<String, out Any?>?> {
-        val encoder = BCryptPasswordEncoder()
-        val hashedPassword = encoder.encode(userFromRequest.password)
-
-        println("Password antes de hashear: ${userFromRequest.password}")
-        println("FirstName: ${userFromRequest.firstName}")
-        println("Password hasheada: $hashedPassword")
-
-        val hashedUser = User()
-        hashedUser.username = userFromRequest.username
-        hashedUser.password = hashedPassword
-        hashedUser.firstName = userFromRequest.firstName
-        hashedUser.lastName = userFromRequest.lastName
-        hashedUser.createdAt = LocalDateTime.now()
-        hashedUser.isActive = true
-        hashedUser.role = "user"
-
-
-        println("User: $userFromRequest")
-        val newUser = userRepository.save(hashedUser)
-
-        val response = mutableMapOf(
-            "id" to newUser.id,
-            "username" to newUser.username,
-        )
-        return ResponseEntity.status(HttpStatus.CREATED).body(response)
-    }
+    fun addUser(@RequestBody userFromRequest: User) = usersService.addANewUser(userFromRequest);
+//    {
+//        val encoder = BCryptPasswordEncoder()
+//        val hashedPassword = encoder.encode(userFromRequest.password)
+//
+//        println("Password antes de hashear: ${userFromRequest.password}")
+//        println("FirstName: ${userFromRequest.firstName}")
+//        println("Password hasheada: $hashedPassword")
+//
+//        val hashedUser = User()
+//        hashedUser.username = userFromRequest.username
+//        hashedUser.password = hashedPassword
+//        hashedUser.firstName = userFromRequest.firstName
+//        hashedUser.lastName = userFromRequest.lastName
+//        hashedUser.createdAt = LocalDateTime.now()
+//        hashedUser.isActive = true
+//        hashedUser.role = "user"
+//
+//
+//        println("User: $userFromRequest")
+//        val newUser = userRepository.save(hashedUser)
+//
+//        val response = mutableMapOf(
+//            "id" to newUser.id,
+//            "username" to newUser.username,
+//        )
+//        return ResponseEntity.status(HttpStatus.CREATED).body(response)
+//    }
 
     @PostMapping("/login")
     fun login(@RequestBody authRequest: AuthenticationRequest): ResponseEntity<Any> {
@@ -89,5 +89,5 @@ class UsersController(
     }
 
     @GetMapping("/users")
-    fun getUsers(): List<User> = userRepository.findAll()
+    fun getUsers(): List<User> = usersService.getAllUsers();
 }

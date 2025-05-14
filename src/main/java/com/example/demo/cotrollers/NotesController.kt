@@ -10,12 +10,10 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api")
-class NotesController(private val noteRepository: NoteRepository) {
-
-    @Autowired
-    private lateinit var notesService: NotesService
-
-
+open class NotesController(
+    val noteRepository: NoteRepository,
+    private val notesService: NotesService
+) {
     @PostMapping("/notes")
     fun addNote(@RequestBody nota: Note): Note =  notesService.saveNote(nota)
 
